@@ -47,6 +47,6 @@ while True:
     relevant_docs = retriever.get_relevant_documents(query)
     chat_history = memory.load_memory_variables({})['chat_history']         # get conv history from memory
     full_prompt = f"""Previous conversation :{chat_history} \n New Question : {query}\n"""
-    res = llm.generate_answer(documents=relevant_docs, preamble=preamble, prompt=query)
+    res = llm.generate_answer(documents=relevant_docs, preamble=preamble, prompt=full_prompt)
     print(res)
 
