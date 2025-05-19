@@ -5,7 +5,6 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import OCIGenAIEmbeddings
 from langchain.vectorstores import Chroma
 from llm import *
-from langchain.chains import RetrievalQA
 
 OCI_EMBED_ENDPOINT = "https://inference.generativeai.us-chicago-1.oci.oraclecloud.com"
 

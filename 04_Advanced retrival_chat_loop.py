@@ -51,8 +51,8 @@ while True:
     query = input("YOU : ")
     if query.lower().__contains__("exit") or query.lower().__contains__("quit"):
         break
-    result = qa_chain({"query": query})
+    result = qa_chain.invoke({"query": query})              # here we use invoke function 
     print(f"Assistant: {result['result']}")
-    print("Sources:", [doc.metadata['source'] for doc in result['source_documents']])
+    print("Sources:", [doc.page_content for doc in result['source_documents']])
 
 
