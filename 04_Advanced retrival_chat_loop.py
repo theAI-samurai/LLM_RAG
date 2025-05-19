@@ -38,6 +38,9 @@ vectorstore = Chroma.from_documents(documents=splits, embedding=embeddings)
 retriever = vectorstore.as_retriever(search_kwargs={"k": 5})
 # -----------   OCI LLM (cohere) + LLM invoke  -----------------
 llm = OCILLM(model_name=MODEL_ID_CR)
+
+#       ----------------------  METHOD 1    ---------------------------
+#  ---------                 Langchain CHAT LOOP    -------------------
 qa_chain = RetrievalQA.from_chain_type(
     llm=llm.llm,            # llm s OCI cohere chat model
     chain_type="stuff",     # simplest approach where all retrieved documents are "stuffed" into the LLM context.
@@ -45,14 +48,25 @@ qa_chain = RetrievalQA.from_chain_type(
     return_source_documents=True
 )
 
-#  --------- Langchain CHAT LOOP    ----------------------------
-
 while True:
     query = input("YOU : ")
     if query.lower().__contains__("exit") or query.lower().__contains__("quit"):
         break
-    result = qa_chain.invoke({"query": query})              # here we use invoke function 
+    result = qa_chain.invoke({"query": query})              # here we use invoke function
     print(f"Assistant: {result['result']}")
     print("Sources:", [doc.page_content for doc in result['source_documents']])
+
+
+#       ----------------------  METHOD 2    ---------------------------
+#  ---------                 Langchain CHAT LOOP    ------------------- (better use this)
+while True:
+    preamble = "You are a question and answer assistant."
+    query = input("YOU : ")
+    if query.lower().__contains__("exit") or query.lower().__contains__("quit"):
+        break
+    relevant_docs = retriever.get_relevant_documents(query)
+    res = llm.generate_answer(documents=relevant_docs, preamble=preamble, prompt=query)
+    print(res)
+
 
 
