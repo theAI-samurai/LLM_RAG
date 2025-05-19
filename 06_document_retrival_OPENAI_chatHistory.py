@@ -14,10 +14,10 @@ import os
 
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_community.vectorstores import Chroma
+from langchain.memory import ConversationBufferMemory
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
 from langchain_openai import ChatOpenAI
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-
 
 # openai based llm calls
 from langchain.schema import HumanMessage
@@ -70,15 +70,23 @@ retriever = vectorstore.as_retriever(search_kwargs={"k": 5})
 # ------------------ OPEN AI LLM    ------------------------------
 llm = ChatOpenAI(model="gpt-3.5-turbo", openai_api_key=OPENAI_ANKIT)
 
+#   ----------------    Initialize Conversational Memory    ---------
+memory = ConversationBufferMemory(memory="history",
+                                  return_message=True)
+
+#  ------------------     Langchain CHAT LOOP    -------------------
 while True:
     preamble = "You are a question and answer assistant."
     query = input("YOU : ")
     if query.lower().__contains__("exit") or query.lower().__contains__("quit"):
         break
     relevant_docs = retriever.get_relevant_documents(query)
+    chat_history = memory.load_memory_variables({})['history']         # get conv history from memory
+    full_prompt = f"""Previous conversation :{chat_history} \n New Question : {query}\n"""
+
     res = openai_generate_answer(documents=relevant_docs,
                                  preamble=preamble,
-                                 prompt=query,
+                                 prompt=full_prompt,
                                  llm=llm
                                  )
     print(res)
